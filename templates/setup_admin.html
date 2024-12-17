@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-white">
+                <h3 class="text-center text-danger mb-0">Configuration Administrateur</h3>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    Cette page permet de configurer le premier compte administrateur.
+                    Contactez le responsable IT pour obtenir le mot de passe de configuration.
+                </div>
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email de l'administrateur</label>
+                        <input type="email" class="form-control" id="email" name="email" 
+                               placeholder="admin@2cconseil.com" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="setup_password" class="form-label">Mot de passe de configuration</label>
+                        <input type="password" class="form-control" id="setup_password" 
+                               name="setup_password" required>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Configurer l'administrateur</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

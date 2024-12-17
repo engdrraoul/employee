@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <div class="mb-4">
+                <img src="{{ url_for('static', filename='images/logoo.png') }}" alt="2CConseil Logo" class="img-fluid mb-4" style="max-height: 150px;">
+            </div>
+            <h1 class="display-4 text-danger mb-4 fw-bold">Employé du Mois 2CConseil</h1>
+            <p class="lead mb-5 text-muted">
+                Célébrez l'excellence et reconnaissez les contributions exceptionnelles de nos talents.
+                Chaque vote compte pour mettre en lumière nos collaborateurs remarquables.
+            </p>
+            {% if not current_user.is_authenticated %}
+            <div class="d-grid gap-3 col-md-6 mx-auto">
+                <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg shadow-sm">
+                    <i class="fas fa-sign-in-alt me-2"></i>Se connecter
+                </a>
+                <a href="{{ url_for('signup') }}" class="btn btn-outline-secondary btn-lg shadow-sm">
+                    <i class="fas fa-user-plus me-2"></i>S'inscrire
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

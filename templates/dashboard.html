@@ -1,0 +1,247 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card shadow stats-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Votes reçus</h6>
+                            <h3 class="mb-0">{{ votes_received }}</h3>
+                        </div>
+                        <div class="bg-light rounded-circle p-3">
+                            <i class="fas fa-thumbs-up fa-2x text-primary"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow stats-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Votes disponibles</h6>
+                            <h3 class="mb-0">{{ votes_remaining }}</h3>
+                        </div>
+                        <div class="bg-light rounded-circle p-3">
+                            <i class="fas fa-vote-yea fa-2x text-primary"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow stats-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Victoires</h6>
+                            <h3 class="mb-0">{{ victories }}</h3>
+                        </div>
+                        <div class="bg-light rounded-circle p-3">
+                            <i class="fas fa-trophy fa-2x text-primary"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Session de vote en cours</h5>
+                </div>
+                <div class="card-body">
+                    {% if active_session %}
+                        <div class="mb-4">
+                            <h6 class="text-muted">Temps restant</h6>
+                            <div class="progress" style="height: 20px;">
+                                {% set progress = ((active_session.end_date - now).total_seconds() / (active_session.end_date - active_session.start_date).total_seconds() * 100)|round|int %}
+                                <div class="progress-bar bg-primary" 
+                                     role="progressbar" 
+                                     style="width: {{ progress }}%"
+                                     aria-valuenow="{{ progress }}" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="100">
+                                    {{ progress }}%
+                                </div>
+                            </div>
+                            <small class="text-muted">
+                                Se termine le {{ active_session.end_date.strftime('%d/%m/%Y à %H:%M') }}
+                            </small>
+                        </div>
+
+                        <h6 class="mb-3">Nominations actuelles</h6>
+                        {% if nominations %}
+                            <div class="list-group">
+                                {% for nomination in nominations %}
+                                    <div class="list-group-item">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="d-flex align-items-center">
+                                                {% if nomination.nominee.photo_path %}
+                                                    <img src="{{ url_for('static', filename=nomination.nominee.photo_path) }}" 
+                                                         alt="Photo de {{ nomination.nominee.name }}"
+                                                         class="rounded-circle me-3"
+                                                         style="width: 50px; height: 50px; object-fit: cover;">
+                                                {% endif %}
+                                                <div>
+                                                    <h6 class="mb-0">{{ nomination.nominee.name }}</h6>
+                                                    <small class="text-muted">
+                                                        {{ nomination.vote_count }} vote{{ 's' if nomination.vote_count != 1 }}
+                                                    </small>
+                                                </div>
+                                            </div>
+                                            {% if nomination.nominee.id != current_user.id and votes_remaining > 0 %}
+                                                <form method="POST" action="{{ url_for('cast_vote') }}">
+                                                    <input type="hidden" name="nominee_id" value="{{ nomination.nominee.id }}">
+                                                    <button type="submit" class="btn btn-primary btn-sm">
+                                                        <i class="fas fa-vote-yea me-1"></i>
+                                                        Voter
+                                                    </button>
+                                                </form>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="text-muted">Aucune nomination pour le moment</p>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                            <h5>Aucune session en cours</h5>
+                            <p class="text-muted">La prochaine session de vote sera bientôt annoncée.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Historique des votes</h5>
+                </div>
+                <div class="card-body">
+                    {% if vote_history %}
+                        <div class="list-group">
+                            {% for vote in vote_history %}
+                                <div class="list-group-item">
+                                    <div class="d-flex align-items-center">
+                                        {% if vote.nominee.photo_path %}
+                                            <img src="{{ url_for('static', filename=vote.nominee.photo_path) }}" 
+                                                 alt="Photo de {{ vote.nominee.name }}"
+                                                 class="rounded-circle me-2"
+                                                 style="width: 30px; height: 30px; object-fit: cover;">
+                                        {% endif %}
+                                        <div>
+                                            <small class="text-muted d-block">
+                                                {{ vote.timestamp.strftime('%d/%m/%Y') }}
+                                            </small>
+                                            Voté pour <strong>{{ vote.nominee.name }}</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">Aucun vote effectué</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card shadow mt-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Derniers gagnants</h5>
+                </div>
+                <div class="card-body">
+                    {% if winners %}
+                        <div class="list-group">
+                            {% for winner in winners %}
+                                <div class="list-group-item">
+                                    <div class="d-flex align-items-center">
+                                        {% if winner.user.photo_path %}
+                                            <img src="{{ url_for('static', filename=winner.user.photo_path) }}" 
+                                                 alt="Photo de {{ winner.user.name }}"
+                                                 class="rounded-circle me-2"
+                                                 style="width: 30px; height: 30px; object-fit: cover;">
+                                        {% endif %}
+                                        <div>
+                                            <h6 class="mb-0">{{ winner.user.name }}</h6>
+                                            <small class="text-muted">
+                                                {{ winner.session.end_date.strftime('%B %Y') }}
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">Aucun gagnant pour le moment</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Statistiques des votes</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="voteChart" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var ctx = document.getElementById('voteChart').getContext('2d');
+    var chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {{ chart_labels|tojson }},
+            datasets: [{
+                label: 'Votes reçus',
+                data: {{ chart_data|tojson }},
+                borderColor: '#e31837',
+                backgroundColor: 'rgba(227, 24, 55, 0.1)',
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                title: {
+                    display: true,
+                    text: 'Évolution des votes reçus'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

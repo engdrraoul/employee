@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2 class="text-danger mb-4">Vote de l'employé du mois</h2>
+    </div>
+</div>
+
+{% if session %}
+    {% if not has_voted %}
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow">
+                    <div class="card-header bg-white">
+                        <h4 class="mb-0">Voter</h4>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST" action="{{ url_for('submit_vote') }}">
+                            <div class="row">
+                                {% for nomination in nominations %}
+                                    <div class="col-md-4 mb-3">
+                                        <div class="card">
+                                            <div class="card-body text-center">
+                                                <h5 class="card-title">{{ nomination.user.name }}</h5>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" 
+                                                           name="nomination_id" value="{{ nomination.id }}" 
+                                                           id="nomination{{ nomination.id }}" required>
+                                                    <label class="form-check-label" for="nomination{{ nomination.id }}">
+                                                        Voter pour cet employé
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <div class="text-center mt-3">
+                                <button type="submit" class="btn btn-primary">Soumettre mon vote</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            Vous avez déjà voté pour cette session. Les résultats seront disponibles à la fin de la période de vote.
+        </div>
+    {% endif %}
+{% else %}
+    <div class="alert alert-info">
+        Aucune session de vote n'est actuellement active. Veuillez attendre qu'une nouvelle session soit ouverte par l'administrateur.
+    </div>
+{% endif %}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-header bg-white">
+                <h4 class="mb-0">Employés du mois précédents</h4>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Employé</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for winner in previous_winners %}
+                                <tr>
+                                    <td>{{ winner.session.end_date.strftime('%B %Y') }}</td>
+                                    <td>{{ winner.user.name }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
